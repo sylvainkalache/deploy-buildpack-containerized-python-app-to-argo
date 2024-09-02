@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: build-and-push-
+  namespace: argo
+spec:
+  entrypoint: build-and-push
+  templates:
+  - name: build-and-push
+    steps:
+    - - name: build-image
+        template: build-image
+      - name: push-image
+        template: push-image
+
+  - name: build-image
+    container:
+      image: buildpacksio/pack
+      command: ["pack"]
+      args: ["build", "docker.io/sylvainkalache/python-app-for-argo:latest", "--path", ".", "--builder", "paketobuildpacks/builder:base"]
+
+  - name: push-image
+    container:
+      image: docker:20.10.7
+      env:
+        - name: DOCKER_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: docker-hub-secret
+              key: username
+        - name: DOCKER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: docker-hub-secret
+              key: password
+      command: ["sh", "-c"]
+      args:
+        - |
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker push docker.io/sylvainkalache/python-app-for-argo:latest
