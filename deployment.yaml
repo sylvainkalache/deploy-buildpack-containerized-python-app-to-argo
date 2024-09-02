@@ -15,5 +15,6 @@ spec:
       containers:
       - name: my-python-app
         image: docker.io/sylvainkalache/python-app-for-argo:latest
+	imagePullPolicy: Always
         ports:
         - containerPort: 8080
