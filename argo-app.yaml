@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/sylvainkalache/sample-web-apps.git'
+    repoURL: 'https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git'
     targetRevision: HEAD
     path: .
   destination:
