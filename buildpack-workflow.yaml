@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: buildpack-build-
+spec:
+  entrypoint: buildpack-build
+  templates:
+  - name: buildpack-build
+    steps:
+    - - name: build-app-image
+        template: build-image
+
+  - name: build-image
+    container:
+      image: buildpacksio/pack
+      command: ["pack"]
+      args: ["build", "my-python-app", "--builder", "paketobuildpacks/builder:base"]
+
