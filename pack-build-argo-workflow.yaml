@@ -16,6 +16,7 @@ spec:
       image: buildpacksio/pack
       command: ["pack"]
       args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", ".", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
+      volumeMounts:
       - name: docker-sock
         mountPath: /var/run/docker.sock
       workingDir: /workspace
@@ -25,4 +26,3 @@ spec:
   - name: docker-sock
     hostPath:
       path: /var/run/docker.sock
-
