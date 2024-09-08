@@ -15,9 +15,9 @@ spec:
     container:
       image: buildpacksio/pack
       command: ["pack"]
-      args: ["build", "localhost:5000/my-python-app:latest", "--path", ".", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
+      args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", ".", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
       securityContext:
-        runAsUser: 1000  # Set according to your permissions
+        runAsUser: 1000
         runAsGroup: 3000
-        privileged: true  # May be required to access the host's network
+        privileged: true
 
