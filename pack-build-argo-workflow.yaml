@@ -12,24 +12,15 @@ spec:
         template: build-image
 
   - name: build-image
-    container:
-      image: buildpacksio/pack
-      command: ["pack"]
-      args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", ".", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
+    initContainers:
+    - name: git-clone
+      image: alpine/git
+      command: ["git", "clone", "https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git", "/workspace"]
       volumeMounts:
       - name: app-source
         mountPath: /workspace
-      - name: docker-sock
-        mountPath: /var/run/docker.sock
-      workingDir: /workspace
-      securityContext:
-        privileged: true
-  volumes:
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
-  - name: app-source
-    gitRepo:
-      repository: "https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git"
-      revision: "HEAD"
+    container:
+      image: buildpacksio/pack
+      command: ["pack"]
+      args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", ".", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "
 
