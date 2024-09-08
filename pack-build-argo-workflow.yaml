@@ -38,7 +38,7 @@ spec:
     container:
       image: buildpacksio/pack
       command: ["pack"]
-      args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", ".", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
+      args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", "/workspace/", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
       volumeMounts:
       - name: docker-sock
         mountPath: /var/run/docker.sock
