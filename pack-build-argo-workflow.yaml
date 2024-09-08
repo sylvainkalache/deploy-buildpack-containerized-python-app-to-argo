@@ -18,7 +18,6 @@ spec:
   - name: git-clone
     container:
       image: alpine/git
-      workingDir: /app
       command: ["/bin/sh", "-c"]
       args:
       - |
@@ -39,8 +38,10 @@ spec:
   - name: build-image
     container:
       image: buildpacksio/pack
-      command: ["pack"]
-      args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", "/app/", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
+      command: ["/bin/sh", "-c"]
+      args:
+      - |
+        ls -la /app && pack build 172.31.17.128:5000/my-python-app:latest --path /app/ --builder paketobuildpacks/builder:base --publish --network host
       volumeMounts:
       - name: docker-sock
         mountPath: /var/run/docker.sock
