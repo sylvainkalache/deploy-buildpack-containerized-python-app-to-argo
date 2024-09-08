@@ -10,8 +10,6 @@ spec:
     steps:
     - - name: git-clone
         template: git-clone
-      - name: debug-list-files
-        template: debug-list-files
       - name: build-image
         template: build-image
 
@@ -21,16 +19,7 @@ spec:
       command: ["/bin/sh", "-c"]
       args:
       - |
-        GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /app && ls -la /app
-      volumeMounts:
-      - name: app-source
-        mountPath: /app
-
-  - name: debug-list-files
-    container:
-      image: alpine
-      command: ["/bin/sh", "-c"]
-      args: ["ls -la /app"]
+        GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git . && ls -la
       volumeMounts:
       - name: app-source
         mountPath: /app
@@ -41,7 +30,7 @@ spec:
       command: ["/bin/sh", "-c"]
       args:
       - |
-        ls -la /app && pack build 172.31.17.128:5000/my-python-app:latest --path /app/ --builder paketobuildpacks/builder:base --publish --network host
+        ls -la && pack build 172.31.17.128:5000/my-python-app:latest --path . --builder paketobuildpacks/builder:base --publish --network host && ls -al
       volumeMounts:
       - name: docker-sock
         mountPath: /var/run/docker.sock
