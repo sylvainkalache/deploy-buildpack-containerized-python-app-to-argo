@@ -17,6 +17,8 @@ spec:
       command: ["pack"]
       args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", ".", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
       volumeMounts:
+      - name: app-source
+        mountPath: /workspace
       - name: docker-sock
         mountPath: /var/run/docker.sock
       workingDir: /workspace
@@ -27,4 +29,7 @@ spec:
     hostPath:
       path: /var/run/docker.sock
   - name: app-source
-      mountPath: /workspace
+    gitRepo:
+      repository: "https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git"
+      revision: "HEAD"
+
