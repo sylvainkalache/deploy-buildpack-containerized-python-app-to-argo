@@ -18,37 +18,35 @@ spec:
   - name: git-clone
     container:
       image: alpine/git
-      workingDir: /workspace
+      workingDir: /
       command: ["/bin/sh", "-c"]
       args:
       - |
-        GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git . && \
-        echo "Clone succeeded" || echo "Clone failed"
+        GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git . && ls -la /
       volumeMounts:
       - name: app-source
-        mountPath: /workspace
-
+        mountPath: /
 
   - name: debug-list-files
     container:
       image: alpine
       command: ["/bin/sh", "-c"]
-      args: ["ls -la /workspace"]
+      args: ["ls -la /"]
       volumeMounts:
       - name: app-source
-        mountPath: /workspace
+        mountPath: /
 
   - name: build-image
     container:
       image: buildpacksio/pack
       command: ["pack"]
-      args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", "/workspace/", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
+      args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", ".", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
       volumeMounts:
       - name: docker-sock
         mountPath: /var/run/docker.sock
       - name: app-source
-        mountPath: /workspace
-      workingDir: /workspace
+        mountPath: /
+      workingDir: /
       securityContext:
         privileged: true
 
