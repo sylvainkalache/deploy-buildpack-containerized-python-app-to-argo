@@ -23,6 +23,15 @@ spec:
       - name: app-source
         mountPath: /workspace
 
+ - name: debug-list-files
+  container:
+    image: alpine
+    command: ["/bin/sh", "-c"]
+    args: ["ls -la /workspace"]
+    volumeMounts:
+    - name: app-source
+      mountPath: /workspace
+
   - name: build-image
     container:
       image: buildpacksio/pack
