@@ -10,6 +10,8 @@ spec:
     steps:
     - - name: git-clone
         template: git-clone
+      - name: debug-list-files
+        template: debug-list-files
       - name: build-image
         template: build-image
 
@@ -23,14 +25,14 @@ spec:
       - name: app-source
         mountPath: /workspace
 
- - name: debug-list-files
-  container:
-    image: alpine
-    command: ["/bin/sh", "-c"]
-    args: ["ls -la /workspace"]
-    volumeMounts:
-    - name: app-source
-      mountPath: /workspace
+  - name: debug-list-files
+    container:
+      image: alpine
+      command: ["/bin/sh", "-c"]
+      args: ["ls -la /workspace"]
+      volumeMounts:
+      - name: app-source
+        mountPath: /workspace
 
   - name: build-image
     container:
