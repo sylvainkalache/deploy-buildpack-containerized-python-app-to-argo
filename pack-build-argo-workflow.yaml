@@ -8,12 +8,13 @@ spec:
   templates:
   - name: build-and-push
     steps:
-    - - name: build-image
+    - - name: git-clone
+        template: git-clone
+      - name: build-image
         template: build-image
 
-  - name: build-image
-    initContainers:
-    - name: git-clone
+  - name: git-clone
+    container:
       image: alpine/git
       command: ["/bin/sh", "-c"]
       args:
@@ -21,8 +22,9 @@ spec:
       volumeMounts:
       - name: app-source
         mountPath: /workspace
-    containers:
-    - name: pack-container
+
+  - name: build-image
+    container:
       image: buildpacksio/pack
       command: ["pack"]
       args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", ".", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
@@ -34,6 +36,7 @@ spec:
       workingDir: /workspace
       securityContext:
         privileged: true
+
   volumes:
   - name: docker-sock
     hostPath:
