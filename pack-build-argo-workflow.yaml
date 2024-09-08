@@ -26,3 +26,5 @@ spec:
   - name: docker-sock
     hostPath:
       path: /var/run/docker.sock
+  - name: app-source
+      mountPath: /workspace
