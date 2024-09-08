@@ -16,7 +16,7 @@ spec:
   - name: git-clone
     container:
       image: alpine/git
-      command: ["/bin/sh", "-c"]
+      command: ["/cnb/lifecycle/launcher", "-c"]
       args:
       - |
         GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git . && ls -la
@@ -27,7 +27,7 @@ spec:
   - name: build-image
     container:
       image: buildpacksio/pack
-      command: ["/bin/sh", "-c"]
+      command: ["/cnb/lifecycle/launcher", "-c"]
       args:
       - |
         ls -la && pack build 172.31.17.128:5000/my-python-app:latest --path . --builder paketobuildpacks/builder:base --publish --network host && ls -al
