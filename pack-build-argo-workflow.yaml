@@ -18,35 +18,35 @@ spec:
   - name: git-clone
     container:
       image: alpine/git
-      workingDir: /
+      workingDir: /app
       command: ["/bin/sh", "-c"]
       args:
       - |
-        GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git . && ls -la /
+        GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /app && ls -la /app
       volumeMounts:
       - name: app-source
-        mountPath: /
+        mountPath: /app
 
   - name: debug-list-files
     container:
       image: alpine
       command: ["/bin/sh", "-c"]
-      args: ["ls -la /"]
+      args: ["ls -la /app"]
       volumeMounts:
       - name: app-source
-        mountPath: /
+        mountPath: /app
 
   - name: build-image
     container:
       image: buildpacksio/pack
       command: ["pack"]
-      args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", ".", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
+      args: ["build", "172.31.17.128:5000/my-python-app:latest", "--path", "/app/", "--builder", "paketobuildpacks/builder:base", "--publish", "--network", "host"]
       volumeMounts:
       - name: docker-sock
         mountPath: /var/run/docker.sock
       - name: app-source
-        mountPath: /
-      workingDir: /
+        mountPath: /app
+      workingDir: /app
       securityContext:
         privileged: true
 
