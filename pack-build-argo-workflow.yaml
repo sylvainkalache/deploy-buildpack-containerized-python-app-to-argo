@@ -18,12 +18,16 @@ spec:
   - name: git-clone
     container:
       image: alpine/git
+      workingDir: /workspace
       command: ["/bin/sh", "-c"]
       args:
-      - git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /workspace
+      - |
+        GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git . && \
+        echo "Clone succeeded" || echo "Clone failed"
       volumeMounts:
       - name: app-source
         mountPath: /workspace
+
 
   - name: debug-list-files
     container:
