@@ -42,7 +42,6 @@ spec:
         mountPath: /var/run/docker.sock
       - name: app-source
         mountPath: /app
-      workingDir: /app
       securityContext:
         privileged: true
 
