@@ -27,10 +27,10 @@ spec:
   - name: build-image
     container:
       image: buildpacksio/pack
-      command: ["/bin/sh", "-c"]
+      command: ["pack"]
       args:
       - |
-        ls -la && pack build 172.31.17.128:5000/my-python-app:latest --path . --builder paketobuildpacks/builder-jammy-base:base --publish --network host && ls -al
+        build 172.31.17.128:5000/my-python-app:latest --path . --builder paketobuildpacks/builder-jammy-base:base --publish --network host
       volumeMounts:
       - name: docker-sock
         mountPath: /var/run/docker.sock
