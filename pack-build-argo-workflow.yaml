@@ -23,6 +23,7 @@ spec:
       volumeMounts:
       - name: app-source
         mountPath: /app
+      workingDir: /app
 
   - name: build-image
     container:
@@ -42,6 +43,7 @@ spec:
         mountPath: /var/run/docker.sock
       - name: app-source
         mountPath: /app
+      workingDir: /app
       securityContext:
         privileged: true
 
