@@ -33,7 +33,7 @@ spec:
       - "--path"
       - "."
       - "--builder"
-      - "paketobuildpacks/builder-jammy-base:base"
+      - "paketobuildpacks/builder-jammy-base"
       - "--publish"
       - "--network"
       - "host"
