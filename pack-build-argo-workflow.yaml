@@ -5,6 +5,14 @@ metadata:
   namespace: argocd
 spec:
   entrypoint: build-and-push
+  volumeClaimTemplates:
+  - metadata:
+      name: workdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
   templates:
   - name: build-and-push
     steps:
@@ -19,11 +27,11 @@ spec:
       command: ["/bin/sh", "-c"]
       args:
       - |
-        GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git . && ls -la
+        GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/ && ls -la /mnt/vol/
       volumeMounts:
-      - name: app-source
-        mountPath: /app
-      workingDir: /app
+      - name: workdir
+        mountPath: /mnt/vol
+
 
   - name: build-image
     container:
@@ -32,7 +40,7 @@ spec:
       args:
       - "172.31.17.128:5000/my-python-app:latest"
       - "--path"
-      - "."
+      - "/mnt/vol/"
       - "--builder"
       - "paketobuildpacks/builder-jammy-base"
       - "--publish"
@@ -41,9 +49,8 @@ spec:
       volumeMounts:
       - name: docker-sock
         mountPath: /var/run/docker.sock
-      - name: app-source
-        mountPath: /app
-      workingDir: /app
+      - name: workdir
+        mountPath: /mnt/vol
       securityContext:
         privileged: true
 
@@ -51,6 +58,5 @@ spec:
   - name: docker-sock
     hostPath:
       path: /var/run/docker.sock
-  - name: app-source
-    emptyDir: {}
+
 
