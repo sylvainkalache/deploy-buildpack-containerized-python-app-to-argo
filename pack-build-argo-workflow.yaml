@@ -30,7 +30,7 @@ spec:
       command: ["/cnb/lifecycle/launcher", "-c"]
       args:
       - |
-        ls -la && pack build 172.31.17.128:5000/my-python-app:latest --path . --builder paketobuildpacks/builder:base --publish --network host && ls -al
+        ls -la && pack build 172.31.17.128:5000/my-python-app:latest --path . --builder paketobuildpacks/builder-jammy-base:base --publish --network host && ls -al
       volumeMounts:
       - name: docker-sock
         mountPath: /var/run/docker.sock
