@@ -3,6 +3,9 @@ kind: Application
 metadata:
   name: my-python-app
   namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: my-python-app=172.31.17.128:5000/my-python-app
+    argocd-image-updater.argoproj.io/my-python-app.update-strategy: latest
 spec:
   project: default
   source:
