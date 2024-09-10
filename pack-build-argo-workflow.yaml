@@ -38,7 +38,7 @@ spec:
       image: buildpacksio/pack
       command: ["pack", "build"]
       args:
-      - "172.31.17.128:5000/my-python-app:latest"
+      - "172.31.17.128:5000/my-python-app"
       - "--path"
       - "/mnt/vol/"
       - "--builder"
