@@ -15,7 +15,6 @@ spec:
       containers:
       - name: my-python-app
         image: 172.31.17.128:5000/my-python-app
-        imagePullPolicy: Always
         ports:
         - containerPort: 8000
         volumeMounts:
