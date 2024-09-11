@@ -20,42 +20,25 @@ spec:
         template: git-clone
       - name: build-image
         template: build-image
+        arguments:
+          parameters:
+          - name: COMMIT_SHA
+            value: "{{steps.git-clone.outputs.result}}"
 
   - name: git-clone
+    outputs:
+      parameters:
+      - name: COMMIT_SHA
+        valueFrom:
+          path: "/mnt/vol/commit-sha.txt"
     container:
       image: alpine/git
       command: ["/bin/sh", "-c"]
       args:
       - |
-        git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/
-        cd /mnt/vol/ && COMMIT_SHA=$(git rev-parse --short HEAD) && echo $COMMIT_SHA
+        GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/ && \
+        cd /mnt/vol/ && COMMIT_SHA=$(git rev-parse --short HEAD) && \
+        echo $COMMIT_SHA > /mnt/vol/commit-sha.txt
       volumeMounts:
-      - name: workdir
-        mountPath: /mnt/vol
-
-  - name: build-image
-    container:
-      image: buildpacksio/pack
-      command: ["pack", "build"]
-      args:
-      - "172.31.17.128:5000/my-python-app:{{inputs.parameters.COMMIT_SHA}}"
-      - "--path"
-      - "/mnt/vol/"
-      - "--builder"
-      - "paketobuildpacks/builder-jammy-base"
-      - "--publish"
-      - "--network"
-      - "host"
-      volumeMounts:
-      - name: docker-sock
-        mountPath: /var/run/docker.sock
-      - name: workdir
-        mountPath: /mnt/vol
-      securityContext:
-        privileged: true
-
-  volumes:
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
+ 
 
