@@ -4,9 +4,8 @@ metadata:
   name: my-python-app
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: my-python-app=172.31.17.128:5000/my-python-app
-    argocd-image-updater.argoproj.io/my-python-app.update-strategy: latest
-    argocd-image-updater.argoproj.io/my-python-app.ignore-initial: "true"
+    argocd-image-updater.argoproj.io/image-list: my-python-app=172.31.17.128:5000/my-python-app:latest
+    argocd-image-updater.argoproj.io/my-python-app.update-strategy: digest
 spec:
   project: default
   source:
