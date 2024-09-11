@@ -27,18 +27,18 @@ spec:
       command: ["/bin/sh", "-c"]
       args:
       - |
-        GIT_TRACE=1 git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/ && ls -la /mnt/vol/
+        git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/
+        cd /mnt/vol/ && COMMIT_SHA=$(git rev-parse --short HEAD) && echo $COMMIT_SHA
       volumeMounts:
       - name: workdir
         mountPath: /mnt/vol
-
 
   - name: build-image
     container:
       image: buildpacksio/pack
       command: ["pack", "build"]
       args:
-      - "172.31.17.128:5000/my-python-app"
+      - "172.31.17.128:5000/my-python-app:{{inputs.parameters.COMMIT_SHA}}"
       - "--path"
       - "/mnt/vol/"
       - "--builder"
@@ -58,5 +58,4 @@ spec:
   - name: docker-sock
     hostPath:
       path: /var/run/docker.sock
-
 
