@@ -4,7 +4,8 @@ metadata:
   name: my-python-app
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: my-python-app=172.31.17.128:5000/my-python-app:latest
+    # Configure Image Updater to track the image based on its digest
+    argocd-image-updater.argoproj.io/image-list: my-python-app=172.31.17.128:5000/my-python-app
     argocd-image-updater.argoproj.io/my-python-app.update-strategy: digest
 spec:
   project: default
@@ -12,12 +13,14 @@ spec:
     repoURL: 'https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git'
     targetRevision: HEAD
     path: .
-    hook:
-      type: PreSync
-    source:
-      repoURL: 'https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git'
-      targetRevision: HEAD
-      path: pack-build-argo-workflow.yaml
+  hooks:
+    - type: PreSync
+      exec:
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            COMMIT_SHA=$(git rev-parse --short HEAD)
+            pack build 172.31.17.128:5000/my-python-app:$COMMIT_SHA --path . --builder paketobuildpacks/builder:base --publish --network host
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default
@@ -25,3 +28,4 @@ spec:
     automated:
       prune: true
       selfHeal: true
+
