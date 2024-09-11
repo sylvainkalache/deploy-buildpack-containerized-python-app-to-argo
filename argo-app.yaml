@@ -12,6 +12,12 @@ spec:
     repoURL: 'https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git'
     targetRevision: HEAD
     path: .
+    hook:
+      type: PreSync
+    source:
+      repoURL: 'https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git'
+      targetRevision: HEAD
+      path: pack-build-argo-workflow.yaml
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default
