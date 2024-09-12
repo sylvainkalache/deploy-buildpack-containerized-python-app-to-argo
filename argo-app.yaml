@@ -16,3 +16,11 @@ spec:
     automated:
       prune: true
       selfHeal: true
+  hooks:
+    - type: PreSync
+      resource:
+        apiVersion: argoproj.io/v1alpha1
+        kind: Workflow
+        name: build-and-push
+        namespace: argocd
+
