@@ -16,3 +16,10 @@ rules:
 - apiGroups: [""]
   resources: ["configmaps", "secrets", "serviceaccounts"]
   verbs: ["create", "get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "create", "delete", "patch", "update"]
+- apiGroups: ["argoproj.io"]
+  resources: ["workflows", "workflowtaskresults"]
+  verbs: ["create", "delete", "get", "list", "update", "patch"]
+
