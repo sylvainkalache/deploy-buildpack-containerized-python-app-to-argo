@@ -49,12 +49,12 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - |
-            git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/app/ && \
-            cd /mnt/vol/app/ && \
+            git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/ && \
+            cd /mnt/vol/ && \
             TAG=$(git describe --tags --always) && \
             echo $TAG && \
-            echo $TAG > /mnt/vol/app/TAG.txt && \
-            cat /mnt/vol/app/TAG.txt
+            echo $TAG > /mnt/vol/TAG.txt && \
+            cat /mnt/vol/TAG.txt
         volumeMounts:
           - name: workdir
             mountPath: /mnt/vol
