@@ -36,16 +36,18 @@ spec:
       parameters:
         - name: TAG
           valueFrom:
-            path: "/mnt/vol/TAG.txt"
+            path: /mnt/vol/TAG.txt
     container:
       image: alpine/git
       command: ["/bin/sh", "-c"]
       args:
         - |
-          git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/ && \
-          cd /mnt/vol && \
+          git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/app/ && \
+          cd /mnt/vol/app/ && \
           TAG=$(git describe --tags --always) && \
-          echo $TAG > /mnt/vol/TAG.txt
+          echo $TAG && \
+          echo $TAG > /mnt/vol/app/TAG.txt && \
+          cat /mnt/vol/app/TAG.txt
       volumeMounts:
         - name: workdir
           mountPath: /mnt/vol
