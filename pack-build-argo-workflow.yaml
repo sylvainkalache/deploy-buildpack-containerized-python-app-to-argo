@@ -72,7 +72,7 @@ spec:
       parameters:
         - name: TAG
     resource:
-      action: update
+      action: apply
       manifest: |
         apiVersion: apps/v1
         kind: Deployment
