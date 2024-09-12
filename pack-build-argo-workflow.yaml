@@ -42,6 +42,7 @@ spec:
       command: ["/bin/sh", "-c"]
       args:
         - |
+	  rm -rf /mnt/vol && \
           git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/ && \
           cd /mnt/vol && \
           TAG=$(git describe --tags --always) && \
