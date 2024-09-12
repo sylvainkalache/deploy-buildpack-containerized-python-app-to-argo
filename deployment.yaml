@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: my-python-app
-        image: 172.31.17.128:5000/my-python-app:{{COMMIT_SHA}}
+        image: 172.31.17.128:5000/my-python-app:{{inputs.parameters.TAG}}
         ports:
         - containerPort: 8000
         volumeMounts:
