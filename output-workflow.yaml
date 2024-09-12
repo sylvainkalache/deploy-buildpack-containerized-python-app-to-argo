@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: output-parameter-
+  name: output-parameter-example
 spec:
   entrypoint: output-parameter
   templates:
@@ -13,7 +13,6 @@ spec:
         template: print-message
         arguments:
           parameters:
-          # Pass the hello-param output from the generate-parameter step as the message input to print-message
           - name: message
             value: "{{steps.generate-parameter.outputs.parameters.hello-param}}"
 
@@ -21,12 +20,12 @@ spec:
     container:
       image: busybox
       command: [sh, -c]
-      args: ["echo -n hello world > /tmp/hello_world.txt"]  # generate the content of hello_world.txt
+      args: ["echo -n hello world > /tmp/hello_world.txt"]
     outputs:
       parameters:
-      - name: hello-param  # name of output parameter
+      - name: hello-param
         valueFrom:
-          path: /tmp/hello_world.txt # set the value of hello-param to the contents of this hello-world.txt
+          path: /tmp/hello_world.txt
 
   - name: print-message
     inputs:
@@ -35,4 +34,4 @@ spec:
     container:
       image: busybox
       command: [echo]
-      args: ["{{inputs.parameters.message}}"]
+
