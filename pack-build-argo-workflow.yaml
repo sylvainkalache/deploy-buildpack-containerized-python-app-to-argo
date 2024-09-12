@@ -5,73 +5,102 @@ metadata:
   namespace: argocd
 spec:
   entrypoint: build-and-push
-  arguments:
-    parameters:
-      - name: TAG
-        value: "v1.0.0"  # Default value
+  volumeClaimTemplates:
+    - metadata:
+        name: workdir
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
   templates:
-  - name: build-and-push
-    steps:
-    - - name: git-clone
-        template: git-clone
-      - name: build-image
-        template: build-image
-        arguments:
-          parameters:
-            - name: TAG
-              value: "{{workflow.parameters.TAG}}"
-      - name: deploy
-        template: deploy
-        arguments:
-          parameters:
-            - name: TAG
-              value: "{{workflow.parameters.TAG}}"
+    - name: build-and-push
+      steps:
+        - - name: git-clone
+            template: git-clone
+          - name: print-message
+            template: print-message
+            arguments:
+              parameters:
+                - name: TAG
+                  value: "{{steps.git-clone.outputs.parameters.TAG}}"
 
-  - name: git-clone
-    container:
-      image: alpine/git
-      command: ["/bin/sh", "-c"]
-      args:
-        - |
-          git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/app/ && \
-          cd /mnt/vol/app/
-      volumeMounts:
-        - name: workdir
-          mountPath: /mnt/vol
+          - name: build-image
+            template: build-image
+            arguments:
+              parameters:
+                - name: TAG
+                  value: "{{steps.git-clone.outputs.parameters.TAG}}"
+          - name: deploy
+            template: deploy
+            arguments:
+              parameters:
+                - name: TAG
+                  value: "{{steps.git-clone.outputs.parameters.TAG}}"
 
-  - name: build-image
-    inputs:
-      parameters:
-        - name: TAG
-    container:
-      image: buildpacksio/pack
-      command: ["pack", "build", "172.31.17.128:5000/my-python-app:{{inputs.parameters.TAG}}", "--path", "/mnt/vol/", "--builder", "paketobuildpacks/builder-jammy-base", "--publish", "--network", "host"]
-      volumeMounts:
-        - name: docker-sock
-          mountPath: /var/run/docker.sock
-        - name: workdir
-          mountPath: /mnt/vol
-      securityContext:
-        privileged: true
+    - name: git-clone
+      outputs:
+        parameters:
+          - name: TAG
+            valueFrom:
+              path: /mnt/vol/TAG.txt
+      container:
+        image: alpine/git
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/app/ && \
+            cd /mnt/vol/app/ && \
+            TAG=$(git describe --tags --always) && \
+            echo $TAG && \
+            echo $TAG > /mnt/vol/app/TAG.txt && \
+            cat /mnt/vol/app/TAG.txt
+        volumeMounts:
+          - name: workdir
+            mountPath: /mnt/vol
 
-  - name: deploy
-    inputs:
-      parameters:
-        - name: TAG
-    resource:
-      action: apply
-      manifest: |
-        apiVersion: apps/v1
-        kind: Deployment
-        metadata:
-          name: my-python-app
-        spec:
-          replicas: 1
-          template:
-            spec:
-              containers:
-              - name: my-python-app
-                image: 172.31.17.128:5000/my-python-app:{{inputs.parameters.TAG}}
+    - name: print-message
+      inputs:
+        parameters:
+          - name: TAG
+      container:
+        image: busybox
+        command: [echo]
+        args: ["{{inputs.parameters.TAG}}"]
+
+    - name: build-image
+      inputs:
+        parameters:
+          - name: TAG
+      container:
+        image: buildpacksio/pack
+        command: ["pack", "build", "172.31.17.128:5000/my-python-app:{{inputs.parameters.TAG}}", "--path", "/mnt/vol/", "--builder", "paketobuildpacks/builder-jammy-base", "--publish", "--network", "host"]
+        volumeMounts:
+          - name: docker-sock
+            mountPath: /var/run/docker.sock
+          - name: workdir
+            mountPath: /mnt/vol
+        securityContext:
+          privileged: true
+
+    - name: deploy
+      inputs:
+        parameters:
+          - name: TAG
+      resource:
+        action: apply
+        manifest: |
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: my-python-app
+          spec:
+            replicas: 1
+            template:
+              spec:
+                containers:
+                  - name: my-python-app
+                    image: 172.31.17.128:5000/my-python-app:{{inputs.parameters.TAG}}
 
   volumes:
     - name: docker-sock
