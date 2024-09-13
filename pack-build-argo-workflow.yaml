@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   entrypoint: build-and-push
-  serviceAccountName: argo-workflow  # Use the correct service account with the right permissions
+  serviceAccountName: default
   volumeClaimTemplates:
     - metadata:
         name: workdir
