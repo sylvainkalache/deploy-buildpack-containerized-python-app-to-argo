@@ -40,7 +40,7 @@ spec:
         - - name: generate-parameter
             template: hello-world-to-file
         - - name: consume-parameter
-            template: print-message
+            template: print-message-two
             arguments:
               parameters:
                 - name: message
@@ -131,7 +131,7 @@ spec:
               default: "Foobar"
               path: /tmp/hello_world.txt
 
-    - name: print-message
+    - name: print-message-two
       inputs:
         parameters:
           - name: message
