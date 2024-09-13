@@ -59,7 +59,7 @@ spec:
           - name: passed-tag
       container:
         image: buildpacksio/pack
-	command: ["pack", "build"]
+        command: ["pack", "build"]
         args:
           - "172.31.17.128:5000/my-python-app:{{inputs.parameters.passed-tag}} --path /mnt/vol/app --builder paketobuildpacks/builder-jammy-base --publish --network host"
         volumeMounts:
