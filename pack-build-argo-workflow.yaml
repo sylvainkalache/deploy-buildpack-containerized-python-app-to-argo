@@ -19,12 +19,6 @@ spec:
       steps:
         - - name: git-clone
             template: git-clone
-        - - name: print-message
-            template: print-message
-            arguments:
-              parameters:
-                - name: passed-tag
-                  value: "{{steps.git-clone.outputs.parameters.tag}}"
         - - name: build-image
             template: build-image
             arguments:
@@ -58,15 +52,6 @@ spec:
         volumeMounts:
           - name: workdir
             mountPath: /mnt/vol
-
-    - name: print-message
-      inputs:
-        parameters:
-          - name: passed-tag
-      container:
-        image: busybox
-        command: [echo]
-        args: ["{{inputs.parameters.passed-tag}}"]
 
     - name: build-image
       inputs:
