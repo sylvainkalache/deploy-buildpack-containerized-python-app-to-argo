@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   entrypoint: build-and-push
-  serviceAccountName: default
+  serviceAccountName: argo-workflow  # Use the correct service account with the right permissions
   volumeClaimTemplates:
     - metadata:
         name: workdir
@@ -17,26 +17,6 @@ spec:
   templates:
     - name: build-and-push
       steps:
-        - - name: git-clone
-            template: git-clone
-          - name: print-message
-            template: print-message
-            arguments:
-              parameters:
-                - name: tag
-                  value: "{{steps.git-clone.outputs.parameters.tag}}"
-          - name: build-image
-            template: build-image
-            arguments:
-              parameters:
-                - name: tag
-                  value: "{{steps.git-clone.outputs.parameters.tag}}"
-          - name: deploy
-            template: deploy
-            arguments:
-              parameters:
-                - name: tag
-                  value: "{{steps.git-clone.outputs.parameters.tag}}"
         - - name: generate-parameter
             template: hello-world-to-file
         - - name: consume-parameter
@@ -45,6 +25,26 @@ spec:
               parameters:
                 - name: message
                   value: "{{steps.generate-parameter.outputs.parameters.hello-param}}"
+        - - name: git-clone
+            template: git-clone
+        - - name: print-message
+            template: print-message
+            arguments:
+              parameters:
+                - name: passed-tag
+                  value: "{{steps.git-clone.outputs.parameters.tag}}"
+        - - name: build-image
+            template: build-image
+            arguments:
+              parameters:
+                - name: tag
+                  value: "{{steps.git-clone.outputs.parameters.tag}}"
+        - - name: deploy
+            template: deploy
+            arguments:
+              parameters:
+                - name: tag
+                  value: "{{steps.git-clone.outputs.parameters.tag}}"
 
     - name: git-clone
       outputs:
@@ -54,8 +54,15 @@ spec:
               path: /mnt/vol/app/tag.txt
       container:
         image: alpine/git
-        command: [sh, -c]
-        args: ["sleep 1; echo -n hello TAG > /tmp/hello_world.txt"]
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            rm -rf /mnt/vol/app && \
+            git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/app && \
+            cd /mnt/vol/app && \
+            tag=$(git describe --tags --always) && \
+            echo $tag && \
+            echo $tag > /mnt/vol/app/tag.txt
         volumeMounts:
           - name: workdir
             mountPath: /mnt/vol
@@ -63,11 +70,11 @@ spec:
     - name: print-message
       inputs:
         parameters:
-          - name: tag
+          - name: passed-tag
       container:
         image: busybox
         command: [echo]
-        args: ["{{inputs.parameters.tag}}"]
+        args: ["{{inputs.parameters.passed-tag}}"]
 
     - name: build-image
       inputs:
@@ -75,10 +82,10 @@ spec:
           - name: tag
       container:
         image: buildpacksio/pack
-      command:
-        - /bin/bash
-        - -c
-        - "pack build 172.31.17.128:5000/my-python-app:{{inputs.parameters.tag}} --path /mnt/vol/app --builder paketobuildpacks/builder-jammy-base --publish --network host"
+        command:
+          - /bin/bash
+          - -c
+          - "pack build 172.31.17.128:5000/my-python-app:{{inputs.parameters.tag}} --path /mnt/vol/app --builder paketobuildpacks/builder-jammy-base --publish --network host"
       volumeMounts:
         - name: docker-sock
           mountPath: /var/run/docker.sock
@@ -111,7 +118,7 @@ spec:
                 containers:
                   - name: my-python-app
                     image: 172.31.17.128:5000/my-python-app:{{inputs.parameters.tag}}
-    
+
     - name: hello-world-to-file
       container:
         image: busybox
@@ -137,4 +144,3 @@ spec:
     - name: docker-sock
       hostPath:
         path: /var/run/docker.sock
-
