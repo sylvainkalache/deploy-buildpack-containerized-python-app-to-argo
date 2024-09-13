@@ -23,13 +23,13 @@ spec:
             template: build-image
             arguments:
               parameters:
-                - name: tag
+                - name: passed-tag
                   value: "{{steps.git-clone.outputs.parameters.tag}}"
         - - name: deploy
             template: deploy
             arguments:
               parameters:
-                - name: tag
+                - name: passed-tag
                   value: "{{steps.git-clone.outputs.parameters.tag}}"
 
     - name: git-clone
@@ -74,7 +74,7 @@ spec:
     - name: deploy
       inputs:
         parameters:
-          - name: tag
+          - name: passed-tag
       resource:
         action: apply
         manifest: |
@@ -94,7 +94,7 @@ spec:
               spec:
                 containers:
                   - name: my-python-app
-                    image: 172.31.17.128:5000/my-python-app:{{inputs.parameters.tag}}
+                    image: 172.31.17.128:5000/my-python-app:{{inputs.parameters.passed-tag}}
 
   volumes:
     - name: docker-sock
