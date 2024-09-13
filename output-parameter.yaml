@@ -14,8 +14,10 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   name: output-parameter
+  namespace: argocd
 spec:
   entrypoint: output-parameter
+  serviceAccountName: default
   templates:
   - name: output-parameter
     steps:
