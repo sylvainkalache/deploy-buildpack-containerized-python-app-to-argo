@@ -54,15 +54,8 @@ spec:
               path: /mnt/vol/app/tag.txt
       container:
         image: alpine/git
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            rm -rf /mnt/vol/app && \
-            git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/app && \
-            cd /mnt/vol/app && \
-            tag=$(git describe --tags --always) && \
-            echo $tag && \
-            echo $tag > /mnt/vol/app/tag.txt
+        command: [sh, -c]
+        args: ["sleep 1; echo -n hello TAG > /tmp/hello_world.txt"]
         volumeMounts:
           - name: workdir
             mountPath: /mnt/vol
