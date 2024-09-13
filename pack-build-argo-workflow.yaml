@@ -43,7 +43,7 @@ spec:
         parameters:
           - name: TAG
             valueFrom:
-	      default: "Foobar"
+              default: "Foobar"
               path: /mnt/vol/TAG.txt
       container:
         image: alpine/git
