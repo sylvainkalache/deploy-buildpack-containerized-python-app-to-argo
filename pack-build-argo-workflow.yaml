@@ -59,17 +59,16 @@ spec:
           - name: passed-tag
       container:
         image: buildpacksio/pack
-        command:
-          - /bin/sh
-          - -c
+        command: ["/bin/sh", "-c"]
+        args:
           - "pack build 172.31.17.128:5000/my-python-app:{{inputs.parameters.passed-tag}} --path /mnt/vol/app --builder paketobuildpacks/builder-jammy-base --publish --network host"
-      volumeMounts:
-        - name: docker-sock
-          mountPath: /var/run/docker.sock
-        - name: workdir
-          mountPath: /mnt/vol
-      securityContext:
-        privileged: true
+        volumeMounts:
+          - name: docker-sock
+            mountPath: /var/run/docker.sock
+          - name: workdir
+            mountPath: /mnt/vol
+        securityContext:
+          privileged: true
 
     - name: deploy
       inputs:
