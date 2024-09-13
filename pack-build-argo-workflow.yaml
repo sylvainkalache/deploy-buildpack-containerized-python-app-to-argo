@@ -17,14 +17,6 @@ spec:
   templates:
     - name: build-and-push
       steps:
-        - - name: generate-parameter
-            template: hello-world-to-file
-        - - name: consume-parameter
-            template: print-message-two
-            arguments:
-              parameters:
-                - name: message
-                  value: "{{steps.generate-parameter.outputs.parameters.hello-param}}"
         - - name: git-clone
             template: git-clone
         - - name: print-message
@@ -79,13 +71,13 @@ spec:
     - name: build-image
       inputs:
         parameters:
-          - name: tag
+          - name: passed-tag
       container:
         image: buildpacksio/pack
         command:
-          - /bin/bash
+          - /bin/sh
           - -c
-          - "pack build 172.31.17.128:5000/my-python-app:{{inputs.parameters.tag}} --path /mnt/vol/app --builder paketobuildpacks/builder-jammy-base --publish --network host"
+          - "pack build 172.31.17.128:5000/my-python-app:{{inputs.parameters.passed-tag}} --path /mnt/vol/app --builder paketobuildpacks/builder-jammy-base --publish --network host"
       volumeMounts:
         - name: docker-sock
           mountPath: /var/run/docker.sock
@@ -118,27 +110,6 @@ spec:
                 containers:
                   - name: my-python-app
                     image: 172.31.17.128:5000/my-python-app:{{inputs.parameters.tag}}
-
-    - name: hello-world-to-file
-      container:
-        image: busybox
-        command: [sh, -c]
-        args: ["sleep 1; echo -n hello world > /tmp/hello_world.txt"]
-      outputs:
-        parameters:
-          - name: hello-param
-            valueFrom:
-              default: "Foobar"
-              path: /tmp/hello_world.txt
-
-    - name: print-message-two
-      inputs:
-        parameters:
-          - name: message
-      container:
-        image: busybox
-        command: [echo]
-        args: ["{{inputs.parameters.message}}"]
 
   volumes:
     - name: docker-sock
