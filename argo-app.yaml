@@ -13,9 +13,7 @@ spec:
     server: 'https://kubernetes.default.svc'
     namespace: default
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    automated: {}
   hooks:
     - type: PreSync
       resource:
