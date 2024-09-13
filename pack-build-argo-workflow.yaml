@@ -5,6 +5,7 @@ metadata:
   namespace: argocd
 spec:
   entrypoint: build-and-push
+  serviceAccountName: argo-workflow  # Use the correct service account with the right permissions
   volumeClaimTemplates:
     - metadata:
         name: workdir
@@ -22,40 +23,46 @@ spec:
             template: print-message
             arguments:
               parameters:
-                - name: TAG
-                  value: "{{steps.git-clone.outputs.parameters.TAG}}"
-
+                - name: tag
+                  value: "{{steps.git-clone.outputs.parameters.tag}}"
           - name: build-image
             template: build-image
             arguments:
               parameters:
-                - name: TAG
-                  value: "{{steps.git-clone.outputs.parameters.TAG}}"
+                - name: tag
+                  value: "{{steps.git-clone.outputs.parameters.tag}}"
           - name: deploy
             template: deploy
             arguments:
               parameters:
-                - name: TAG
-                  value: "{{steps.git-clone.outputs.parameters.TAG}}"
+                - name: tag
+                  value: "{{steps.git-clone.outputs.parameters.tag}}"
+        - - name: generate-parameter
+            template: hello-world-to-file
+        - - name: consume-parameter
+            template: print-message
+            arguments:
+              parameters:
+                - name: message
+                  value: "{{steps.generate-parameter.outputs.parameters.hello-param}}"
 
     - name: git-clone
       outputs:
         parameters:
-          - name: TAG
+          - name: tag
             valueFrom:
-              default: "Foobar"
-              path: /mnt/vol/TAG.txt
+              path: /mnt/vol/app/tag.txt
       container:
         image: alpine/git
         command: ["/bin/sh", "-c"]
         args:
           - |
-            git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/ && \
-            cd /mnt/vol/ && \
-            TAG=$(git describe --tags --always) && \
-            echo $TAG && \
-            echo $TAG > /mnt/vol/TAG.txt && \
-            cat /mnt/vol/TAG.txt
+            rm -rf /mnt/vol/app && \
+            git clone https://github.com/sylvainkalache/deploy-buildpack-containerized-python-app-to-argo.git /mnt/vol/app && \
+            cd /mnt/vol/app && \
+            tag=$(git describe --tags --always) && \
+            echo $tag && \
+            echo $tag > /mnt/vol/app/tag.txt
         volumeMounts:
           - name: workdir
             mountPath: /mnt/vol
@@ -63,31 +70,34 @@ spec:
     - name: print-message
       inputs:
         parameters:
-          - name: TAG
+          - name: tag
       container:
         image: busybox
         command: [echo]
-        args: ["{{inputs.parameters.TAG}}"]
+        args: ["{{inputs.parameters.tag}}"]
 
     - name: build-image
       inputs:
         parameters:
-          - name: TAG
+          - name: tag
       container:
         image: buildpacksio/pack
-        command: ["pack", "build", "172.31.17.128:5000/my-python-app:{{inputs.parameters.TAG}}", "--path", "/mnt/vol/", "--builder", "paketobuildpacks/builder-jammy-base", "--publish", "--network", "host"]
-        volumeMounts:
-          - name: docker-sock
-            mountPath: /var/run/docker.sock
-          - name: workdir
-            mountPath: /mnt/vol
-        securityContext:
-          privileged: true
+      command:
+        - /bin/bash
+        - -c
+        - "pack build 172.31.17.128:5000/my-python-app:{{inputs.parameters.tag}} --path /mnt/vol/app --builder paketobuildpacks/builder-jammy-base --publish --network host"
+      volumeMounts:
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+        - name: workdir
+          mountPath: /mnt/vol
+      securityContext:
+        privileged: true
 
     - name: deploy
       inputs:
         parameters:
-          - name: TAG
+          - name: tag
       resource:
         action: apply
         manifest: |
@@ -97,11 +107,38 @@ spec:
             name: my-python-app
           spec:
             replicas: 1
+            selector:
+              matchLabels:
+                app: my-python-app
             template:
+              metadata:
+                labels:
+                  app: my-python-app
               spec:
                 containers:
                   - name: my-python-app
-                    image: 172.31.17.128:5000/my-python-app:{{inputs.parameters.TAG}}
+                    image: 172.31.17.128:5000/my-python-app:{{inputs.parameters.tag}}
+    
+    - name: hello-world-to-file
+      container:
+        image: busybox
+        command: [sh, -c]
+        args: ["sleep 1; echo -n hello world > /tmp/hello_world.txt"]
+      outputs:
+        parameters:
+          - name: hello-param
+            valueFrom:
+              default: "Foobar"
+              path: /tmp/hello_world.txt
+
+    - name: print-message
+      inputs:
+        parameters:
+          - name: message
+      container:
+        image: busybox
+        command: [echo]
+        args: ["{{inputs.parameters.message}}"]
 
   volumes:
     - name: docker-sock
