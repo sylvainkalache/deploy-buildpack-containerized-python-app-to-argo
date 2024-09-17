@@ -81,28 +81,14 @@ spec:
       inputs:
         parameters:
           - name: passed-tag
-      resource:
-        action: apply
-        manifest: |
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: my-python-app
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: my-python-app
-            template:
-              metadata:
-                labels:
-                  app: my-python-app
-              spec:
-                containers:
-                  - name: my-python-app
-                    image: 172.31.17.128:5000/my-python-app:{{inputs.parameters.passed-tag}}
+      script:
+        image: bitnami/kubectl
+        command: ["/bin/sh", "-c"]
+        source: |
+          sed "s/{{inputs.parameters.passed-tag}}/${passed_tag}/g" deployment.yaml | kubectl apply -f -
 
   volumes:
     - name: docker-sock
       hostPath:
         path: /var/run/docker.sock
+
