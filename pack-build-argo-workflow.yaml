@@ -83,7 +83,7 @@ spec:
           - name: passed-tag
       script:
         image: bitnami/kubectl
-        command: ["/bin/sh", "-c"]
+        command: ["sh"]
         source: |
           sed "s/{{inputs.parameters.passed-tag}}/${passed_tag}/g" deployment.yaml | kubectl apply -f -
         securityContext:
