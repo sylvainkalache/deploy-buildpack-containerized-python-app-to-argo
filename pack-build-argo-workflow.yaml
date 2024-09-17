@@ -25,12 +25,6 @@ spec:
               parameters:
                 - name: passed-tag
                   value: "{{steps.git-clone.outputs.parameters.tag}}"
-        - - name: deploy
-            template: deploy
-            arguments:
-              parameters:
-                - name: passed-tag
-                  value: "{{steps.git-clone.outputs.parameters.tag}}"
 
     - name: git-clone
       outputs:
@@ -76,19 +70,6 @@ spec:
             mountPath: /mnt/vol
         securityContext:
           privileged: true
-
-    - name: deploy
-      inputs:
-        parameters:
-          - name: passed-tag
-      script:
-        image: bitnami/kubectl
-        command: ["sh"]
-        source: |
-          sed "s/{{inputs.parameters.passed-tag}}/${passed_tag}/g" deployment.yaml | kubectl apply -f -
-        securityContext:
-          runAsUser: 0
-          allowPrivilegeEscalation: true
 
   volumes:
     - name: docker-sock
