@@ -85,8 +85,7 @@ spec:
         image: bitnami/kubectl
         command: ["/bin/sh", "-c"]
         source: |
-          chmod +x /argo/staging/script
-      sed "s/{{inputs.parameters.passed-tag}}/${passed_tag}/g" deployment.yaml | kubectl apply -f -
+          chmod +x /argo/staging/script | sed "s/{{inputs.parameters.passed-tag}}/${passed_tag}/g" deployment.yaml | kubectl apply -f -
 
   volumes:
     - name: docker-sock
