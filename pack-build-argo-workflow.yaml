@@ -61,8 +61,6 @@ spec:
           - "--builder"
           - "paketobuildpacks/builder-jammy-base"
           - "--publish"
-          - "--network"
-          - "host"
         volumeMounts:
           - name: docker-sock
             mountPath: /var/run/docker.sock
