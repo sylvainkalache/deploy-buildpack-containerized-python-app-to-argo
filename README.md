@@ -4,8 +4,6 @@
 CNCF graduated project Argo is one of the leading choices for  [continuous integration and delivery](https://thenewstack.io/how-continuous-integration-and-continuous-delivery-ci-cd-enhances-devops/)  tools and generally makes developers’ lives easier. But before code can be pushed into Argo,  [developers typically need](https://thenewstack.io/5-things-developers-need-to-know-about-kubernetes-management/)  to write a Dockerfile to containerize it.
 
 In this article, I will explore how to use CNCF incubating project  [Buildpacks](https://buildpacks.io/), an application definition, and image build to skip the Dockerfile step and increase developer productivity.
-<iframe width="560" height="315" src="https://www.youtube.com/watch?v=TojM-kmYeXA&t=1s" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
 ## How Can Buildpacks Increase Feedback Loop Speed?
 
 Let’s first set the context for Buildpacks. Cloud native buildpacks transform your application source code into images running on any cloud. By looking at your code, Buildpacks auto-detect what is needed to build an OCI image with the best performance and security practices.
